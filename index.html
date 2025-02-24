@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Print API Order Tool</title>
+    <title>Multi-Product Order Tool</title>
     <style>
         :root {
             --primary: #4A90E2;
@@ -11,6 +11,8 @@
             --error: #FF6B6B;
             --background: #F8F9FA;
             --text: #2C3E50;
+            --radius: 0.8rem;
+            --transition: all 0.2s ease;
         }
 
         body {
@@ -19,88 +21,105 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             padding: 2rem;
+            margin: 0;
         }
 
         .form-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             max-width: 800px;
             margin: 0 auto;
             padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         h1 {
             color: var(--primary);
             text-align: center;
+            margin: 0 0 2rem;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .form-section {
             margin-bottom: 2rem;
-            font-weight: 600;
-            font-size: 2.2rem;
+            background: rgba(74, 144, 226, 0.03);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .product-entry {
+            border: 2px solid rgba(74, 144, 226, 0.1);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
 
         label {
             display: block;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.5rem;
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.9rem;
         }
 
         input, select {
             width: 100%;
-            padding: 0.8rem 1.2rem;
+            padding: 0.8rem 1rem;
             border: 2px solid #e0e0e0;
-            border-radius: 0.8rem;
+            border-radius: calc(var(--radius) - 0.2rem);
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             background: #fff;
         }
 
         input:focus, select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
             outline: none;
         }
 
         button {
             background: var(--primary);
             color: white;
-            padding: 1rem 2rem;
+            padding: 1rem;
             border: none;
-            border-radius: 0.8rem;
+            border-radius: var(--radius);
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            width: 100%;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(74, 144, 226, 0.2);
         }
 
         #result {
             margin-top: 2rem;
             padding: 1.5rem;
-            border-radius: 0.8rem;
+            border-radius: var(--radius);
             font-family: monospace;
             white-space: pre-wrap;
             opacity: 0;
             transform: translateY(10px);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         #result.show {
@@ -109,87 +128,133 @@
         }
 
         .success {
-            background: rgba(80, 227, 194, 0.15);
+            background: rgba(80, 227, 194, 0.1);
             border: 2px solid var(--success);
             color: #1a7f6c;
         }
 
         .error {
-            background: rgba(255, 107, 107, 0.15);
+            background: rgba(255, 107, 107, 0.1);
             border: 2px solid var(--error);
             color: #cc0000;
         }
 
-        .address-section {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 2px solid #eee;
+        .option-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
-        .address-section h2 {
+        .add-option {
+            background: rgba(74, 144, 226, 0.1);
             color: var(--primary);
-            margin-bottom: 1.5rem;
-            font-size: 1.4rem;
+            padding: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .remove-btn {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--error);
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .product-options {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(74, 144, 226, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h1>🖨️ Print API Order Tool</h1>
+        <h1>🛍️ Multi-Product Order Tool</h1>
         <form id="orderForm">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="clientId">Client ID</label>
-                    <input type="text" id="clientId" required>
-                </div>
-                <div class="form-group">
-                    <label for="clientSecret">Client Secret</label>
-                    <input type="password" id="clientSecret" required>
-                </div>
-            </div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="productId">Product ID</label>
-                    <input type="text" id="productId" required>
-                </div>
-                <div class="form-group">
-                    <label for="quantity">Quantity</label>
-                    <input type="number" id="quantity" value="1" min="1" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="imageUrl">File URL</label>
-                <input type="url" id="imageUrl" required>
-            </div>
-
-            <div class="address-section">
-                <h2>📦 Shipping Address</h2>
+            <!-- API Credentials -->
+            <div class="form-section">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" required>
+                        <label for="clientId">Client ID</label>
+                        <input type="text" id="clientId" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" required>
+                        <label for="clientSecret">Client Secret</label>
+                        <input type="password" id="clientSecret" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Container -->
+            <div class="form-section" id="productsContainer">
+                <!-- Product Template -->
+                <div class="product-entry">
+                    <button type="button" class="remove-btn" onclick="removeProduct(this)">× Remove Product</button>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Product ID</label>
+                            <input type="text" class="product-id" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input type="url" class="image-url" 
+                                   pattern="https?://.+\.(pdf|png|jpg|jpeg)$"
+                                   title="Must be a valid PDF/PNG/JPEG URL" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" class="quantity" value="1" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Page Count</label>
+                            <input type="number" class="page-count" value="1" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Options -->
+                    <div class="product-options">
+                        <h4>Product Options</h4>
+                        <div class="options-container">
+                            <div class="option-row">
+                                <input type="text" placeholder="Option ID (e.g., finish)">
+                                <input type="text" placeholder="Value (e.g., laminate_matte)">
+                                <button type="button" class="remove-option" onclick="removeOption(this)">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-option" onclick="addOption(this)">+ Add Option</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Product Button -->
+            <button type="button" class="add-option" onclick="addProduct()" 
+                    style="margin-bottom: 2rem;">+ Add Product</button>
+
+            <!-- Shipping Address -->
+            <div class="form-section">
+                <h3>📦 Shipping Address</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <input type="text" id="name" placeholder="Full Name" required>
                     </div>
                     <div class="form-group">
-                        <label for="Line1">Street</label>
-                        <input type="text" id="Line1" required>
+                        <input type="email" id="email" placeholder="Email" required>
                     </div>
                     <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" id="city" required>
+                        <input type="text" id="Line1" placeholder="Street Address" required>
                     </div>
                     <div class="form-group">
-                        <label for="PostCode">Postal Code</label>
-                        <input type="text" id="PostCode" required>
+                        <input type="text" id="city" placeholder="City" required>
                     </div>
                     <div class="form-group">
-                        <label for="country">Country Code (e.g., NL)</label>
-                        <input type="text" id="country" required maxlength="2">
+                        <input type="text" id="PostCode" placeholder="Postal Code" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="country" placeholder="Country Code (e.g., NL)" 
+                               pattern="[A-Za-z]{2}" 
+                               title="2-letter country code" required>
                     </div>
                 </div>
             </div>
@@ -201,6 +266,67 @@
     </div>
 
     <script>
+        // Product Management
+        function addProduct() {
+            const template = document.querySelector('.product-entry').cloneNode(true);
+            template.querySelectorAll('input').forEach(input => input.value = '');
+            template.querySelector('.quantity').value = 1;
+            template.querySelector('.page-count').value = 1;
+            template.querySelector('.options-container').innerHTML = `
+                <div class="option-row">
+                    <input type="text" placeholder="Option ID">
+                    <input type="text" placeholder="Value">
+                    <button type="button" class="remove-option" onclick="removeOption(this)">×</button>
+                </div>
+            `;
+            document.getElementById('productsContainer').appendChild(template);
+        }
+
+        function removeProduct(btn) {
+            if(document.querySelectorAll('.product-entry').length > 1) {
+                btn.closest('.product-entry').remove();
+            }
+        }
+
+        // Option Management
+        function addOption(btn) {
+            const container = btn.previousElementSibling;
+            const div = document.createElement('div');
+            div.className = 'option-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Option ID">
+                <input type="text" placeholder="Value">
+                <button type="button" class="remove-option" onclick="removeOption(this)">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeOption(btn) {
+            btn.closest('.option-row').remove();
+        }
+
+        // Data Collection
+        function collectProducts() {
+            return Array.from(document.querySelectorAll('.product-entry')).map(product => {
+                const options = Array.from(product.querySelectorAll('.option-row')).map(row => {
+                    const inputs = row.querySelectorAll('input');
+                    return {
+                        id: inputs[0].value.trim(),
+                        value: inputs[1].value.trim()
+                    };
+                }).filter(opt => opt.id && opt.value);
+
+                return {
+                    productId: product.querySelector('.product-id').value,
+                    quantity: parseInt(product.querySelector('.quantity').value),
+                    pageCount: parseInt(product.querySelector('.page-count').value),
+                    files: { content: product.querySelector('.image-url').value },
+                    options: options
+                };
+            });
+        }
+
+        // Form Submission
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const resultDiv = document.getElementById('result');
@@ -208,12 +334,8 @@
             resultDiv.className = 'success show';
 
             try {
-                // Collect form data
                 const orderData = {
-                    items: [{
-                        productId: document.getElementById('productId').value,
-                        quantity: parseInt(document.getElementById('quantity').value)
-                    }],
+                    items: collectProducts(),
                     shipping: {
                         address: {
                             name: document.getElementById('name').value,
@@ -223,14 +345,11 @@
                             country: document.getElementById('country').value.toUpperCase(),
                             email: document.getElementById('email').value
                         }
-                    },
-                    files: {
-                        content: document.getElementById('imageUrl').value
                     }
                 };
 
-                // Get access token
-                const tokenResponse = await fetch('https://test.printapi.nl/v2/oauth', {
+                // Authentication
+                const tokenResponse = await fetch('https://api.printapi.nl/v2/oauth', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: new URLSearchParams({
@@ -240,11 +359,11 @@
                     })
                 });
 
-                const tokenData = await tokenResponse.json();
                 if (!tokenResponse.ok) throw new Error('Authentication failed');
+                const tokenData = await tokenResponse.json();
 
-                // Submit order
-                const orderResponse = await fetch('https://test.printapi.nl/v2/orders', {
+                // Submit Order
+                const orderResponse = await fetch('https://api.printapi.nl/v2/oauth', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${tokenData.access_token}`,
@@ -256,14 +375,15 @@
                 const responseData = await orderResponse.json();
                 
                 if (orderResponse.ok) {
-                    resultDiv.textContent = `✅ Order submitted successfully!\nOrder ID: ${responseData.id}`;
+                    resultDiv.textContent = `✅ Order submitted!\nOrder ID: ${responseData.id}`;
                     resultDiv.className = 'success show';
                 } else {
-                    resultDiv.textContent = '⚠️ Request received - check email for details';
-                    resultDiv.className = 'success show';
+                    const errors = responseData.fields?.map(f => `${f.key}: ${f.errors.join(', ')}`) || [responseData.message];
+                    resultDiv.textContent = `⚠️ Error:\n${errors.join('\n')}`;
+                    resultDiv.className = 'error show';
                 }
             } catch (error) {
-                resultDiv.textContent = '🔴 Network error - check connection';
+                resultDiv.textContent = `🔴 Error: ${error.message}`;
                 resultDiv.className = 'error show';
                 console.error('Error:', error);
             }
@@ -271,6 +391,3 @@
     </script>
 </body>
 </html>
-
-
-
