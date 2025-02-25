@@ -354,8 +354,8 @@
                     }
                 };
 
-                // Authentication via onze proxy
-                console.log('Sending authentication request');
+                // Authentication via onze proxy (live.printapi.nl ipv api.printapi.nl)
+                console.log('Sending authentication request to live.printapi.nl');
                 const tokenResponse = await fetch(API_ENDPOINTS.auth, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
