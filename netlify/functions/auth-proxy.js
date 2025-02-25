@@ -1,7 +1,21 @@
 // netlify/functions/auth-proxy.js
 const fetch = require('node-fetch');
 
+// netlify/functions/auth-proxy.js
 exports.handler = async function(event, context) {
+  // Handle OPTIONS method voor CORS preflight requests
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+      },
+      body: ""
+    };
+  }
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -16,7 +30,7 @@ exports.handler = async function(event, context) {
     const { client_id, client_secret } = JSON.parse(event.body);
 
     // Maak een POST request naar de PrintAPI OAuth endpoint
-    const response = await fetch('https://api.printapi.nl/v2/orders', {
+    const response = await fetch('https://api.printapi.nl/v2/oauth', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: new URLSearchParams({
@@ -32,11 +46,13 @@ exports.handler = async function(event, context) {
       statusCode: response.status,
       headers: {
         "Access-Control-Allow-Origin": "*", // Of specifiek voor jouw GitHub Pages URL
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
       },
       body: JSON.stringify(data)
     };
   } catch (error) {
+    console.log('Error in auth-proxy:', error);
     return {
       statusCode: 500,
       headers: {

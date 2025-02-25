@@ -3,6 +3,12 @@
   functions = "netlify/functions"
   publish = "."
   command = "echo 'No build command needed'"
+  
+[functions]
+  node_bundler = "esbuild"
+
+[build.environment]
+  NODE_VERSION = "18"
 
 # For SPA routing
 [[redirects]]
