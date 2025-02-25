@@ -368,6 +368,7 @@
                 const tokenData = await tokenResponse.json();
 
                 // Submit Order via onze proxy
+                console.log('Sending order data:', JSON.stringify(orderData));
                 const orderResponse = await fetch(API_ENDPOINTS.order, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
