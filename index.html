@@ -266,6 +266,12 @@
     </div>
 
     <script>
+        // API endpoints configuratie
+        const API_ENDPOINTS = {
+            auth: '/.netlify/functions/auth-proxy',
+            order: '/.netlify/functions/order-proxy'
+        };
+
         // Product Management
         function addProduct() {
             const template = document.querySelector('.product-entry').cloneNode(true);
@@ -348,12 +354,11 @@
                     }
                 };
 
-                // Authentication
-                const tokenResponse = await fetch('https://api.printapi.nl/v2/oauth', {
+                // Authentication via onze proxy
+                const tokenResponse = await fetch(API_ENDPOINTS.auth, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: new URLSearchParams({
-                        grant_type: 'client_credentials',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
                         client_id: document.getElementById('clientId').value,
                         client_secret: document.getElementById('clientSecret').value
                     })
@@ -362,14 +367,14 @@
                 if (!tokenResponse.ok) throw new Error('Authentication failed');
                 const tokenData = await tokenResponse.json();
 
-                // Submit Order
-                const orderResponse = await fetch('https://api.printapi.nl/v2/oauth', {
+                // Submit Order via onze proxy
+                const orderResponse = await fetch(API_ENDPOINTS.order, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${tokenData.access_token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(orderData)
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        orderData: orderData,
+                        token: tokenData.access_token
+                    })
                 });
 
                 const responseData = await orderResponse.json();
