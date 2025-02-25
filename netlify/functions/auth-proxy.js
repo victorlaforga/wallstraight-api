@@ -11,7 +11,7 @@ exports.handler = async function(event, context) {
       const { client_id, client_secret } = JSON.parse(event.body);
   
       // Maak een POST request naar de PrintAPI OAuth endpoint
-      const response = await fetch('https://api.printapi.nl/v2/oauth', {
+      const response = await fetch('https://api.printapi.nl/v2/orders', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: new URLSearchParams({
